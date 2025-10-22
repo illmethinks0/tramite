@@ -6,7 +6,7 @@
  * Displays form performance metrics and insights
  */
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -60,14 +60,6 @@ export default function AnalyticsPage() {
   const [selectedForm, setSelectedForm] = useState<string>('')
   const [dateRange, setDateRange] = useState<'7d' | '30d' | '90d'>('30d')
 
-  useEffect(() => {
-    loadForms()
-  }, [])
-
-  useEffect(() => {
-    loadAnalytics()
-  }, [selectedForm, dateRange])
-
   const loadForms = async () => {
     try {
       const response = await fetch('/api/forms')
@@ -79,7 +71,7 @@ export default function AnalyticsPage() {
     }
   }
 
-  const loadAnalytics = async () => {
+  const loadAnalytics = useCallback(async () => {
     setIsLoading(true)
     try {
       const daysMap = { '7d': 7, '30d': 30, '90d': 90 }
@@ -106,7 +98,15 @@ export default function AnalyticsPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [selectedForm, dateRange])
+
+  useEffect(() => {
+    loadForms()
+  }, [])
+
+  useEffect(() => {
+    loadAnalytics()
+  }, [loadAnalytics])
 
   const exportToCSV = () => {
     if (!analytics) return

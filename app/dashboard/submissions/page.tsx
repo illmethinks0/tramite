@@ -6,7 +6,7 @@
  * Displays and manages form submissions for the organization
  */
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -61,11 +61,6 @@ export default function SubmissionsPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null)
 
-  useEffect(() => {
-    loadForms()
-    loadSubmissions()
-  }, [page, selectedForm, selectedStatus])
-
   const loadForms = async () => {
     try {
       const response = await fetch('/api/forms')
@@ -77,7 +72,7 @@ export default function SubmissionsPage() {
     }
   }
 
-  const loadSubmissions = async () => {
+  const loadSubmissions = useCallback(async () => {
     setIsLoading(true)
     try {
       const params = new URLSearchParams({
@@ -99,7 +94,12 @@ export default function SubmissionsPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [page, selectedForm, selectedStatus, limit])
+
+  useEffect(() => {
+    loadForms()
+    loadSubmissions()
+  }, [loadSubmissions])
 
   const filteredSubmissions = submissions.filter(sub =>
     !searchQuery ||

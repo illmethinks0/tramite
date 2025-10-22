@@ -11,7 +11,7 @@
  * - PDF generation & email delivery
  */
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -64,15 +64,7 @@ export default function PublicFormPage() {
   const [submitMessage, setSubmitMessage] = useState('')
   const [pdfUrl, setPdfUrl] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (draftToken) {
-      loadDraft(draftToken)
-    } else {
-      loadForm()
-    }
-  }, [slug, draftToken])
-
-  const loadForm = async () => {
+  const loadForm = useCallback(async () => {
     setIsLoading(true)
     try {
       const response = await fetch(`/api/forms/public/${slug}`)
@@ -88,9 +80,9 @@ export default function PublicFormPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [slug])
 
-  const loadDraft = async (token: string) => {
+  const loadDraft = useCallback(async (token: string) => {
     setIsLoading(true)
     try {
       const response = await fetch(`/api/submissions/draft?token=${token}`)
@@ -109,7 +101,15 @@ export default function PublicFormPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [loadForm])
+
+  useEffect(() => {
+    if (draftToken) {
+      loadDraft(draftToken)
+    } else {
+      loadForm()
+    }
+  }, [draftToken, loadDraft, loadForm])
 
   const validateField = (field: FormField, value: any): string | null => {
     // Required field validation

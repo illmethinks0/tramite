@@ -10,4 +10,27 @@
   body {
     @apply bg-background text-foreground font-sans;
   }
+
+  /* WCAG 2.4.7 Level AA - Visible focus indicators */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-accent ring-offset-2 ring-offset-background;
+  }
+
+  /* Specific focus styles for buttons to prevent ring inside borders */
+  button:focus-visible,
+  a:focus-visible {
+    @apply outline-none ring-2 ring-accent ring-offset-2 ring-offset-background;
+  }
+
+  /* Input fields get accent ring with no offset */
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    @apply outline-none ring-2 ring-accent ring-offset-0;
+  }
+
+  /* Keyboard navigation hint styles */
+  kbd {
+    @apply inline-flex items-center justify-center px-2 py-1 text-xs font-mono bg-background-secondary border border-border rounded shadow-sm;
+  }
 }

@@ -12,13 +12,16 @@
  * - Publish form to make it publicly accessible
  */
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
+import { toast } from '@/lib/toast'
+import { formatDistanceToNow } from 'date-fns'
+import slugify from 'slugify'
 import {
   Settings,
   Eye,
@@ -30,7 +33,13 @@ import {
   Mail,
   CheckCircle2,
   AlertCircle,
-  ExternalLink
+  ExternalLink,
+  Loader2,
+  Circle,
+  Lock,
+  ChevronUp,
+  ChevronDown,
+  Copy
 } from 'lucide-react'
 
 interface FormField {
@@ -84,12 +93,13 @@ export function FormBuilder({ formId }: FormBuilderProps) {
   const [editingField, setEditingField] = useState<FormField | null>(null)
   const [newRecipient, setNewRecipient] = useState('')
   const [validationErrors, setValidationErrors] = useState<string[]>([])
+  const [validationIssues, setValidationIssues] = useState<{field: string, severity: 'error' | 'warning', message: string}[]>([])
+  const [lastSaved, setLastSaved] = useState<Date | null>(null)
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [fieldSearch, setFieldSearch] = useState('')
+  const [fieldTypeFilter, setFieldTypeFilter] = useState<string>('')
 
-  useEffect(() => {
-    loadForm()
-  }, [formId])
-
-  const loadForm = async () => {
+  const loadForm = useCallback(async () => {
     setIsLoading(true)
     try {
       const response = await fetch(`/api/forms/${formId}`)
@@ -104,7 +114,11 @@ export function FormBuilder({ formId }: FormBuilderProps) {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [formId])
+
+  useEffect(() => {
+    loadForm()
+  }, [loadForm])
 
   const handleSave = async () => {
     if (!form) return

@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { OnboardingTour, useOnboarding } from '@/components/onboarding/onboarding-tour'
+import { OnboardingTour, TourTriggerButton, useOnboarding } from '@/components/onboarding/onboarding-tour'
 import {
   Upload,
   FileText,
@@ -25,7 +25,7 @@ import {
 
 export default function DashboardPage() {
   const router = useRouter()
-  const { shouldShowOnboarding, markAsComplete } = useOnboarding()
+  const { shouldShowOnboarding, isTourActive, startTour, markAsComplete, dismissTour } = useOnboarding()
   const [stats, setStats] = useState({
     templates: 0,
     forms: 0,
@@ -84,20 +84,24 @@ export default function DashboardPage() {
   return (
     <>
       {/* Onboarding Tour */}
-      {shouldShowOnboarding && (
-        <OnboardingTour
-          onComplete={markAsComplete}
-          onSkip={markAsComplete}
-        />
-      )}
+      <OnboardingTour
+        isActive={isTourActive}
+        onComplete={markAsComplete}
+        onDismiss={dismissTour}
+      />
 
       <div className="container mx-auto py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
-          <p className="text-muted-foreground">
-            Welcome back! Here&apos;s your overview.
-          </p>
+        <div className="mb-8 flex items-start justify-between">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
+            <p className="text-muted-foreground">
+              Welcome back! Here&apos;s your overview.
+            </p>
+          </div>
+          {(shouldShowOnboarding || (typeof window !== 'undefined' && !localStorage.getItem('onboarding_completed'))) && (
+            <TourTriggerButton onClick={startTour} />
+          )}
         </div>
 
         {/* Stats Cards */}
@@ -267,7 +271,11 @@ export default function DashboardPage() {
 
         {/* Action Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => router.push('/dashboard/templates')}>
+          <Card
+            data-tour="templates-card"
+            className="hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => router.push('/dashboard/templates')}
+          >
             <CardHeader>
               <div className="flex items-center gap-3">
                 <div className="p-3 rounded-lg bg-blue-500/10">
@@ -287,7 +295,11 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => router.push('/dashboard/forms')}>
+          <Card
+            data-tour="forms-card"
+            className="hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => router.push('/dashboard/forms')}
+          >
             <CardHeader>
               <div className="flex items-center gap-3">
                 <div className="p-3 rounded-lg bg-purple-500/10">
@@ -307,7 +319,11 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => router.push('/dashboard/submissions')}>
+          <Card
+            data-tour="submissions-card"
+            className="hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => router.push('/dashboard/submissions')}
+          >
             <CardHeader>
               <div className="flex items-center gap-3">
                 <div className="p-3 rounded-lg bg-green-500/10">
