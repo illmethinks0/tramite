@@ -21,7 +21,7 @@ export default function HomePage() {
 
             <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <Button size="lg" asChild>
-                <Link href="/auth/signup">Get Started Free</Link>
+                <Link href="/signup">Get Started Free</Link>
               </Button>
               <Button size="lg" variant="ghost" asChild>
                 <Link href="/dashboard">View Demo</Link>
