@@ -29,6 +29,18 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
+# Credentials and secrets (should never be committed)
+*credentials*.json
+*secrets*.json
+*.key
+*.pem
+
+# Local configuration files that may contain sensitive data
+*-CONFIGURED.md
+.env.*
+!.env.example
+!.env.deploy.template
+
 # Vercel
 .vercel
 
